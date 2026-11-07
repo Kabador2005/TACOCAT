@@ -4,14 +4,15 @@ public class EnemyBehavior : MonoBehaviour
 {
     public enum EnemyType
     {
-        Grandma,        
-        SpeedDemon,     
-        SemiTruck,      
-        Merger,         
-        Motorbike,      
+        Grandma,
+        SpeedDemon,
+        SemiTruck,
+        Merger,
+        Motorbike,
         BigButha,
         Hillbilly,
-        Cop
+        Cop,
+        Customer
     }
 
     public EnemyType enemyType;
@@ -41,7 +42,22 @@ public class EnemyBehavior : MonoBehaviour
     private bool CopHasReachedTarget = false;
     private float[] possibleLanes = { -2f, -1f, 1f, 2f };
 
+    [Header("Customer Settings")]
+    public float sideOffsetX = 2.5f;     
+    public float targetStopYOffset = 0f;
+    private Transform playerTransform;
+    private Vector2 customerTargetPos;
+    private bool hasTriggeredOrder = false;
+    private TacoMinigameManager tacoManager;
 
+    private enum CustomerState 
+    { 
+        DrivingToPosition, 
+        WaitingForTaco, 
+        DrivingAway 
+    }
+
+    private CustomerState customerState = CustomerState.DrivingToPosition;
 
     private Rigidbody2D rb;
 
@@ -59,6 +75,28 @@ public class EnemyBehavior : MonoBehaviour
             float targetY = Random.Range(1f, 5f);
             CopTargetPos = new Vector2(TargetLaneX, targetY);
         }
+        else if (enemyType == EnemyType.Customer)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerTransform = player.transform;
+
+                float sideDirection = Random.value > 0.5f ? 1f : -1f;
+                float targetX = playerTransform.position.x + (sideOffsetX * sideDirection);
+                float targetY = playerTransform.position.y + targetStopYOffset;
+
+                customerTargetPos = new Vector2(targetX, targetY);
+
+            }
+            else
+            {
+                customerTargetPos = new Vector2(2f, 0f);
+            }
+
+            tacoManager = FindFirstObjectByType<TacoMinigameManager>();
+            customerState = CustomerState.DrivingToPosition;
+        }
 
     }
 
@@ -66,8 +104,11 @@ public class EnemyBehavior : MonoBehaviour
     {
         HandleBehaviors();
 
-        // Clean up when off-screen safely
-        if (transform.position.y < -12f || transform.position.y > 15f)
+        if (enemyType != EnemyType.Customer && (transform.position.y < -12f || transform.position.y > 15f))
+        {
+            Destroy(gameObject);
+        }
+        else if (enemyType == EnemyType.Customer && (transform.position.y < -12f || transform.position.y > 20f))
         {
             Destroy(gameObject);
         }
@@ -126,7 +167,7 @@ public class EnemyBehavior : MonoBehaviour
 
 
                 dropTimer += Time.deltaTime;
-                if(dropTimer >= dropInterval)
+                if (dropTimer >= dropInterval)
                 {
                     dropTimer = 0f;
                     DropDebrisSpread();
@@ -150,7 +191,49 @@ public class EnemyBehavior : MonoBehaviour
                     rb.linearVelocity = new Vector2(0f, -baseSpeed * 1.2f);
                 }
                 break;
+
+            case EnemyType.Customer:
+                HandleCustomerBehavior();
+                break;
         }
+    }
+
+    void HandleCustomerBehavior()
+    {
+
+        switch (customerState)
+        {
+            case CustomerState.DrivingToPosition:
+                transform.position = Vector2.MoveTowards(transform.position, customerTargetPos, (baseSpeed * 1.2f) * Time.deltaTime);
+                rb.linearVelocity = Vector2.zero;
+
+                if(Vector2.Distance(transform.position, customerTargetPos) < 0.1f)
+                {
+                    customerState = CustomerState.WaitingForTaco;
+                    
+                    if(!hasTriggeredOrder && tacoManager != null)
+                    {
+                        hasTriggeredOrder = true;
+                        tacoManager.StartTacoMinigame();
+                    }
+                }
+                break;
+
+            case CustomerState.WaitingForTaco:
+                rb.linearVelocity = Vector2.zero;
+                break;
+
+            case CustomerState.DrivingAway:
+                rb.linearVelocity = new Vector2(0f, baseSpeed * 2f);
+                break;
+        }
+
+
+    }
+
+    public void CompleteCustomerOrder()
+    {
+        customerState = CustomerState.DrivingAway;
     }
 
     void DropDebrisSpread()
