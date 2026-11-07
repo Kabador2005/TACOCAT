@@ -2,18 +2,32 @@ using UnityEngine;
 
 public class ScrollingEnvironment : MonoBehaviour
 {
-    public float scrollSpeed = 15f;
-    public float resetPosition = -20f;
-    public float startPosition = 20f;
+    public float scrollSpeed = 8.5f;
 
-    // Update is called once per frame
+    [HideInInspector]
+    public float tileMapHeight = 71f;
+
+    private Vector3 startPosition;
+
+    public EnvironmentManager envManager;
+
+    void Start()
+    {
+        startPosition = transform.position;
+    }
+
     void Update()
     {
         transform.Translate(Vector3.down * scrollSpeed * Time.deltaTime);
 
-        if (transform.position.y <= resetPosition)
+        if (transform.position.y <= startPosition.y - tileMapHeight)
         {
-            transform.position = new Vector3(transform.position.x, startPosition, transform.position.z);
+            transform.position = new Vector3(startPosition.x, startPosition.y, startPosition.z);
+
+            if (envManager != null)
+            {
+                envManager.OnLoopCompleted();
+            }
         }
     }
 }
