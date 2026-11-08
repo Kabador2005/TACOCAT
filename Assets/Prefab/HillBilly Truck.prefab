@@ -110,7 +110,7 @@ MonoBehaviour:
   baseSpeed: 3
   laneSwitchInterval: 2
   laneStepSize: 1
-  debrisPrefab: {fileID: 0}
+  debrisPrefab: {fileID: 6089075576007061472, guid: 8f5d03a56e58d0e44ab2002cc2691e7e, type: 3}
   dropInterval: 2
   spreadCount: 3
   spreadAngle: 45

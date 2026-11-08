@@ -243,25 +243,42 @@ public class EnemyBehavior : MonoBehaviour
     {
         if (debrisPrefab == null) return;
 
-        float StartAngle = -spreadAngle / 2f;
+        Collider2D[] myColliders = GetComponentsInChildren<Collider2D>();
+        Collider2D[] spawnedColliders = new Collider2D[spreadCount];
+
+        float startAngle = -spreadAngle / 2f;
         float angleStep = spreadCount > 1 ? spreadAngle / (spreadCount - 1) : 0f;
 
         for (int i = 0; i < spreadCount; i++)
         {
-            float CurrentAngle = StartAngle + (i * angleStep);
-            Quaternion rotation = Quaternion.Euler(0, 0f, CurrentAngle);
-            Vector2 spawnDir = rotation * Vector2.down;
+            float currentAngle = startAngle + (i * angleStep);
+            Vector2 spawnDir = Quaternion.Euler(0f, 0f, currentAngle) * Vector2.down;
 
             GameObject debris = Instantiate(debrisPrefab, transform.position, Quaternion.identity);
 
-            Rigidbody2D debrisRb = debris.GetComponent<Rigidbody2D>();
-            if (debrisRb != null)
+            if (debris.TryGetComponent(out Rigidbody2D debrisRb))
             {
                 debrisRb.linearVelocity = spawnDir * 4f;
             }
 
+            Collider2D debrisCol = debris.GetComponent<Collider2D>();
+            spawnedColliders[i] = debrisCol;
 
+            if (debrisCol != null)
+            {
+                // Ignore the hillbilly itself
+                foreach (Collider2D mine in myColliders)
+                    Physics2D.IgnoreCollision(debrisCol, mine, true);
 
+                // Ignore the other pieces from this same drop so they don't push each other apart
+                for (int j = 0; j < i; j++)
+                {
+                    if (spawnedColliders[j] != null)
+                        Physics2D.IgnoreCollision(debrisCol, spawnedColliders[j], true);
+                }
+            }
+
+            Destroy(debris, 8f); // cleanup so debris doesn't pile up forever
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)
