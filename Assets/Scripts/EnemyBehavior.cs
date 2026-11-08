@@ -19,6 +19,7 @@ public class EnemyBehavior : MonoBehaviour
 
     [Header("General Settings")]
     public float baseSpeed = 3f;
+    
 
     [Header("Merger Settings")]
     public float laneSwitchInterval = 2f;
@@ -112,6 +113,8 @@ public class EnemyBehavior : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+
     }
 
     void HandleBehaviors()
@@ -214,7 +217,7 @@ public class EnemyBehavior : MonoBehaviour
                     if(!hasTriggeredOrder && tacoManager != null)
                     {
                         hasTriggeredOrder = true;
-                        tacoManager.StartTacoMinigame();
+                        tacoManager.StartTacoMinigame(this);
                     }
                 }
                 break;
@@ -261,4 +264,15 @@ public class EnemyBehavior : MonoBehaviour
 
         }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!collision.enabled) return;
+
+        if (collision.gameObject == GameObject.FindGameObjectWithTag("Player"))
+        {
+            Debug.Log("YOU FAT FUCK I HATE YOU");
+            Destroy(gameObject);
+        }
+    }
+
 }

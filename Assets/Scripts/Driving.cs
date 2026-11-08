@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,22 +9,29 @@ public class Driving : MonoBehaviour
     public float MaxAngle = 15f;
     public float AngleSpeed = 15f;
 
+    [Header("Lane Positions")]
+    // Fixed: Properly ordered and unique lane coordinates
+    public float[] lanes = { -5f, -2f, 2f, 5f };
+    private int currentLaneIndex = 2; // Index 2 corresponds to 2f
 
     private Vector2 TargetPos;
     private Rigidbody2D rb;
     private float currentAngle = 0f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        TargetPos = rb.position;
+        rb.freezeRotation = true;
+
+        currentLaneIndex = GetClosestLaneIndex(rb.position.x);
+        TargetPos = new Vector2(lanes[currentLaneIndex], rb.position.y);
+        rb.position = TargetPos;
     }
 
-    // Update is called once per frame
     void Update()
     {
         MyInput();
+        HandleTilt();
     }
 
     private void FixedUpdate()
@@ -38,30 +46,73 @@ public class Driving : MonoBehaviour
         {
             if (Keyboard.current != null)
             {
+                // Move Right
                 if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
                 {
-                    TargetPos += Vector2.right * MoveSize;
+                    if (currentLaneIndex < lanes.Length - 1)
+                    {
+                        currentLaneIndex++;
+                        TargetPos = new Vector2(lanes[currentLaneIndex], rb.position.y);
+                    }
                 }
+                // Move Left
                 else if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
                 {
-                    TargetPos += Vector2.left * MoveSize;
+                    if (currentLaneIndex > 0)
+                    {
+                        currentLaneIndex--;
+                        TargetPos = new Vector2(lanes[currentLaneIndex], rb.position.y);
+                    }
                 }
             }
         }
+    }
 
+    private void HandleTilt()
+    {
         float TargetAngle = 0f;
-        if (TargetPos.x > rb.position.x)
+
+        // Use a small threshold (0.01f) to prevent tiny floating-point jitter/tweaking when arrived
+        if (Mathf.Abs(TargetPos.x - rb.position.x) > 0.01f)
         {
-            TargetAngle = -MaxAngle;
+            if (TargetPos.x > rb.position.x)
+            {
+                TargetAngle = -MaxAngle;
+            }
+            else if (TargetPos.x < rb.position.x)
+            {
+                TargetAngle = MaxAngle;
+            }
         }
-        else if (TargetPos.x < rb.position.x)
+        else
         {
-            TargetAngle = MaxAngle;
+            TargetAngle = 0f; // Force upright when position is reached
         }
 
         currentAngle = Mathf.Lerp(currentAngle, TargetAngle, AngleSpeed * Time.deltaTime);
         rb.rotation = currentAngle;
+    }
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        TargetPos = rb.position;
+        currentLaneIndex = GetClosestLaneIndex(rb.position.x);
+    }
 
+    int GetClosestLaneIndex(float PosX)
+    {
+        int closestIndex = 0;
+        float minDist = Mathf.Abs(PosX - lanes[0]);
+
+        for (int i = 1; i < lanes.Length; i++)
+        {
+            float Dist = Mathf.Abs(PosX - lanes[i]);
+            if (Dist < minDist)
+            {
+                minDist = Dist;
+                closestIndex = i;
+            }
+        }
+        return closestIndex;
     }
 }

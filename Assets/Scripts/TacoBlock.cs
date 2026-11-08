@@ -1,58 +1,68 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+[RequireComponent(typeof(Collider2D))]
 public class TacoBlock : MonoBehaviour
 {
-    public float StepSize = 1f;
+    private const float Skin = 0.001f;
 
-    public float minXLimit = -1f;
-    public float maxXLimit = 1f;
+    private Collider2D col;
+    private ContactFilter2D filter;
+    private readonly RaycastHit2D[] hits = new RaycastHit2D[8];
 
-    private Rigidbody2D rb;
+    private float stepX;
+    private float minX;
+    private float maxX;
 
+    public Bounds Bounds => col.bounds;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    /// <summary>Called by the manager right after spawning.</summary>
+    public void Init(float stepX, float minX, float maxX, LayerMask stackMask)
     {
-        rb = GetComponent<Rigidbody2D>();
-        if(rb != null)
-        {
-            rb.gravityScale = 0f;
-        }
+        this.stepX = stepX;
+        this.minX = minX;
+        this.maxX = maxX;
+
+        col = GetComponent<Collider2D>();
+
+        filter = new ContactFilter2D();
+        filter.SetLayerMask(stackMask);
+        filter.useTriggers = true; // landed blocks are triggers
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// How far this block can travel in 'dir' (up to maxDistance) before touching the stack/shell.
+    /// </summary>
+    public float GetFreeDistance(Vector2 dir, float maxDistance)
     {
-        HandleInput();
+        int count = col.Cast(dir.normalized, filter, hits, maxDistance);
+        float free = maxDistance;
+
+        for (int i = 0; i < count; i++)
+        {
+            free = Mathf.Min(free, hits[i].distance);
+        }
+
+        return Mathf.Max(0f, free - Skin);
     }
 
-    void HandleInput()
+    private void Update()
     {
-        if(Keyboard.current == null)
+        if (col == null || Keyboard.current == null) return;
+
+        if (Keyboard.current.aKey.wasPressedThisFrame) TryMoveSideways(Vector2.left);
+        else if (Keyboard.current.dKey.wasPressedThisFrame) TryMoveSideways(Vector2.right);
+    }
+
+    private void TryMoveSideways(Vector2 dir)
+    {
+        float newX = transform.position.x + dir.x * stepX;
+        if (newX < minX || newX > maxX) return;
+
+        // Only move if the whole step is clear (blocks can't slide through the stack)
+        if (GetFreeDistance(dir, stepX) >= stepX - 2f * Skin)
         {
-            return;
+            transform.position += (Vector3)(dir * stepX);
         }
-
-        Vector3 Targetmove = Vector3.zero;
-
-        if (Keyboard.current.aKey.wasPressedThisFrame)
-        {
-            Targetmove = Vector3.left * StepSize;
-        }
-        else if(Keyboard.current.dKey.wasPressedThisFrame)
-        {
-            Targetmove = Vector3.right * StepSize;
-        }
-
-        if (Targetmove != Vector3.zero)
-        {
-            Vector3 newPos = transform.position + Targetmove;
-
-            if (newPos.x >= minXLimit && newPos.x <= maxXLimit)
-            {
-                transform.position = newPos;
-            }
-        }
-
-    }    
+    }
 }

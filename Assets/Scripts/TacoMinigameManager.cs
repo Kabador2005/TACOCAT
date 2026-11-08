@@ -1,138 +1,165 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TacoMinigameManager : MonoBehaviour
 {
-    [Header("Ingredient Prefabs / other")]
-    public GameObject[] ingredientPrefabs;
-    public GameObject tacoMinigameUIPanel;
+    [Header("References")]
+    [SerializeField] private GameObject[] ingredientPrefabs;
+    [SerializeField] private GameObject tacoMinigameUIPanel;
+    [SerializeField] private Transform tacoShellTransform;
 
-    [Header("Taco Shell")]
-    public Transform TacoShellTransform;
-    public float SpawnOffsetY = 3f;
-    public float DropInterval = 1f;
+    [Header("Layers")]
+    [Tooltip("Layer used by the taco shell collider AND landed ingredients.")]
+    [SerializeField] private string stackLayerName = "TacoStack";
 
-    private GameObject CurrentBlock;
-    private float dropTimer;
-    private bool isMinigameActive = false;
+    [Header("Gameplay")]
+    [SerializeField] private float spawnOffsetY = 4f;
+    [SerializeField] private float dropInterval = 0.8f;
+    [SerializeField] private float blockStepSize = 0.5f;   
+    [SerializeField] private float horizontalStep = 1f;    
+    [SerializeField] private float halfPlayWidth = 3f;     
+    [SerializeField] private float ingredientScale = 2f;
+    [SerializeField] private int maxStackHeight = 5;
 
-    private int StackedIngredientsCount = 0;
-    public int MaxStackHeight = 5;
+    private LayerMask stackMask;
+    private int stackLayer;
 
+    private TacoBlock currentBlock;
+    private readonly List<GameObject> spawnedBlocks = new List<GameObject>();
     private EnemyBehavior currentCustomer;
 
-    void Start()
+    private float dropTimer;
+    private int stackedCount;
+    private bool isMinigameActive;
+
+    private void Awake()
     {
-        // Ensure the minigame UI is hidden when the game starts
-        if (tacoMinigameUIPanel != null)
+        stackLayer = LayerMask.NameToLayer(stackLayerName);
+        if (stackLayer < 0)
         {
-            tacoMinigameUIPanel.SetActive(false);
+            Debug.LogError($"Layer '{stackLayerName}' doesn't exist. Add it in Project Settings > Tags and Layers.");
         }
+        stackMask = LayerMask.GetMask(stackLayerName);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        if (!isMinigameActive || TacoShellTransform == null)
-        { 
-            return; 
-        }
+        if (tacoMinigameUIPanel != null) tacoMinigameUIPanel.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (!isMinigameActive || currentBlock == null) return;
 
         dropTimer += Time.deltaTime;
-        if (dropTimer >= DropInterval)
+        if (dropTimer >= dropInterval)
         {
             dropTimer = 0f;
             StepBlockDown();
         }
-
     }
 
-    public void StartTacoMinigame()
+    public void StartTacoMinigame(EnemyBehavior customer)
     {
+        currentCustomer = customer;
+        stackedCount = 0;
+        dropTimer = 0f;
+
+        ClearStack();
+
+        if (tacoMinigameUIPanel != null) tacoMinigameUIPanel.SetActive(true);
+
         isMinigameActive = true;
-        StackedIngredientsCount = 0;
-
-        // Pop up the UI panel on screen!
-        if (tacoMinigameUIPanel != null)
-        {
-            tacoMinigameUIPanel.SetActive(true);
-        }
-
-        SpawnNewIngredientBlock();
+        SpawnNewBlock();
     }
 
-    void SpawnNewIngredientBlock()
+    private void SpawnNewBlock()
     {
-        if (ingredientPrefabs.Length == 0)
+        if (ingredientPrefabs.Length == 0) return;
+
+        GameObject prefab = ingredientPrefabs[Random.Range(0, ingredientPrefabs.Length)];
+        Vector3 spawnPos = tacoShellTransform.position + Vector3.up * spawnOffsetY;
+
+        GameObject go = Instantiate(prefab, spawnPos, Quaternion.identity, transform);
+        go.transform.localScale = new Vector3(ingredientScale, ingredientScale, 1f);
+        spawnedBlocks.Add(go);
+
+        // Physics is not used for movement, so make the body kinematic + collider a trigger
+        if (go.TryGetComponent(out Rigidbody2D rb))
         {
+            rb.gravityScale = 0f;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+        }
+        if (go.TryGetComponent(out Collider2D col)) col.isTrigger = true;
+
+        currentBlock = go.GetComponent<TacoBlock>();
+        if (currentBlock == null) currentBlock = go.AddComponent<TacoBlock>();
+
+        float shellX = tacoShellTransform.position.x;
+        currentBlock.Init(horizontalStep, shellX - halfPlayWidth, shellX + halfPlayWidth, stackMask);
+    }
+
+    private void StepBlockDown()
+    {
+        // Ask the collider how far it can really fall: lands flush on the shell / other blocks
+        float free = currentBlock.GetFreeDistance(Vector2.down, blockStepSize);
+        currentBlock.transform.position += Vector3.down * free;
+
+        bool blocked = free < blockStepSize - 0.002f;
+        if (blocked) LandCurrentBlock();
+    }
+
+    private void LandCurrentBlock()
+    {
+        GameObject landed = currentBlock.gameObject;
+
+        // Lock it in place and make it part of the stack for future collision checks
+        currentBlock.enabled = false;
+        Destroy(currentBlock);
+        landed.layer = stackLayer;
+        currentBlock = null;
+        stackedCount++;
+
+        // Stack reached the spawn point -> no room left
+        float spawnY = tacoShellTransform.position.y + spawnOffsetY;
+        if (landed.GetComponent<Collider2D>().bounds.max.y >= spawnY)
+        {
+            EndTacoMinigame(false);
             return;
         }
 
-        int RandomIndex = Random.Range(0, ingredientPrefabs.Length);
-        GameObject PrefabToSpawn = ingredientPrefabs[RandomIndex];
-
-        Vector2 spawnPos = new Vector2(TacoShellTransform.position.x, TacoShellTransform.position.y + SpawnOffsetY);
-        CurrentBlock = Instantiate(PrefabToSpawn, spawnPos, Quaternion.identity, TacoShellTransform);
-
-        if(CurrentBlock.GetComponent<TacoBlock>() == null)
-        {
-            CurrentBlock.AddComponent<TacoBlock>();
-        }
-
+        if (stackedCount >= maxStackHeight) EndTacoMinigame(true);
+        else SpawnNewBlock();
     }
-    void StepBlockDown()
+
+    private void ClearStack()
     {
-        if (CurrentBlock != null)
+        currentBlock = null;
+
+        foreach (GameObject block in spawnedBlocks)
         {
-            CurrentBlock.transform.position += Vector3.down;
-
-            float BottomLimit = TacoShellTransform.position.y - 1.5f + (StackedIngredientsCount * 0.5f);
-
-            if (CurrentBlock.transform.position.y <= BottomLimit)
-            {
-                CurrentBlock = null;
-                StackedIngredientsCount++;
-
-                if (StackedIngredientsCount >= MaxStackHeight)
-                {
-                    EndTacoMinigame(true);
-                }
-                else
-                {
-                    SpawnNewIngredientBlock();
-                }
-            }
+            if (block != null) Destroy(block);
         }
+        spawnedBlocks.Clear();
     }
+
     public void EndTacoMinigame(bool success)
     {
         isMinigameActive = false;
-        if (CurrentBlock != null)
-        {
-            Destroy(CurrentBlock);
-        }
+        ClearStack();
 
-        // Hide the minigame UI panel when finished
-        if (tacoMinigameUIPanel != null)
-        {
-            tacoMinigameUIPanel.SetActive(false);
-        }
+        if (tacoMinigameUIPanel != null) tacoMinigameUIPanel.SetActive(false);
 
         if (success)
         {
             Debug.Log("Taco completed successfully! Customer drives away happy.");
-
-            if(currentCustomer != null)
-            {
-                currentCustomer.CompleteCustomerOrder();
-                currentCustomer = null;
-            }
-
+            if (currentCustomer != null) currentCustomer.CompleteCustomerOrder();
         }
         else
         {
             Debug.Log("Taco order failed.");
         }
+
+        currentCustomer = null;
     }
 }
-
-

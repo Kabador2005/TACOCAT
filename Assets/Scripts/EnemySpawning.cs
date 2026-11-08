@@ -4,10 +4,10 @@ public class EnemySpawing : MonoBehaviour
 {
     public GameObject[] EnemyPrefabs;
 
-    public float minSpawnTime = 1f;
-    public float maxSpawnTime = 2.5f;
+    public float minSpawnTime = 3f;
+    public float maxSpawnTime = 5f;
     public float spawnYpos = 8f;
-    public float[] lanes = { -2f, -1f, 1f, 2f };
+    public float[] lanes = { -5f, -2f, 2f, 5f };
 
     private float Spawntime;
 
@@ -35,13 +35,31 @@ public class EnemySpawing : MonoBehaviour
     {
         if (EnemyPrefabs.Length == 0) return;
 
+        bool customerAlreadyExists = false;
+        EnemyBehavior[] activeEnemies = FindObjectsByType<EnemyBehavior>(FindObjectsSortMode.None);
+        foreach (var enemy in activeEnemies)
+        {
+            if (enemy != null && enemy.enemyType == EnemyBehavior.EnemyType.Customer)
+            {
+                customerAlreadyExists = true;
+                break;
+            }
+        }
+
+
         int randomIndex = Random.Range(0, EnemyPrefabs.Length);
         GameObject selectedPrefab = EnemyPrefabs[randomIndex];
 
-        // Safety check to make sure the slot isn't empty/missing
+        
         if (selectedPrefab == null)
         {
             Debug.LogWarning("An enemy prefab slot is empty or missing!");
+            return;
+        }
+
+        EnemyBehavior prefabBehavior = selectedPrefab.GetComponent<EnemyBehavior>();
+        if (prefabBehavior != null && prefabBehavior.enemyType == EnemyBehavior.EnemyType.Customer && customerAlreadyExists)
+        {
             return;
         }
 
