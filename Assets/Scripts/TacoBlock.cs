@@ -1,46 +1,67 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
-[RequireComponent(typeof(Collider2D))]
 public class TacoBlock : MonoBehaviour
 {
     private const float Skin = 0.001f;
 
-    private Collider2D col;
+    private Collider2D[] cols;
+    private Rigidbody2D body;
     private ContactFilter2D filter;
     private readonly RaycastHit2D[] hits = new RaycastHit2D[8];
+    private readonly Collider2D[] overlaps = new Collider2D[8];
 
     private float stepX;
     private float minX;
     private float maxX;
 
-    public Bounds Bounds => col.bounds;
+    public Collider2D LastBlocker { get; private set; }
+    public bool IsSoftDropping => Keyboard.current != null && Keyboard.current.sKey.isPressed;
 
-    /// <summary>Called by the manager right after spawning.</summary>
+    public Bounds Bounds
+    {
+        get
+        {
+            Bounds b = cols[0].bounds;
+            for (int i = 1; i < cols.Length; i++) b.Encapsulate(cols[i].bounds);
+            return b;
+        }
+    }
+
+    
     public void Init(float stepX, float minX, float maxX, LayerMask stackMask)
     {
         this.stepX = stepX;
         this.minX = minX;
         this.maxX = maxX;
 
-        col = GetComponent<Collider2D>();
+        cols = GetComponentsInChildren<Collider2D>();
+
+        body = GetComponent<Rigidbody2D>();
+        if (body == null) body = gameObject.AddComponent<Rigidbody2D>();
+        body.bodyType = RigidbodyType2D.Kinematic;
+        body.gravityScale = 0f;
 
         filter = new ContactFilter2D();
         filter.SetLayerMask(stackMask);
-        filter.useTriggers = true; // landed blocks are triggers
+        filter.useTriggers = true; 
     }
 
-    /// <summary>
-    /// How far this block can travel in 'dir' (up to maxDistance) before touching the stack/shell.
-    /// </summary>
     public float GetFreeDistance(Vector2 dir, float maxDistance)
     {
-        int count = col.Cast(dir.normalized, filter, hits, maxDistance);
+        Physics2D.SyncTransforms();
+
+        int count = body.Cast(dir.normalized, filter, hits, maxDistance);
         float free = maxDistance;
+        LastBlocker = null;
 
         for (int i = 0; i < count; i++)
         {
-            free = Mathf.Min(free, hits[i].distance);
+            if (hits[i].distance < free)
+            {
+                free = hits[i].distance;
+                LastBlocker = hits[i].collider;
+            }
+
         }
 
         return Mathf.Max(0f, free - Skin);
@@ -48,10 +69,13 @@ public class TacoBlock : MonoBehaviour
 
     private void Update()
     {
-        if (col == null || Keyboard.current == null) return;
+        if (body == null || Keyboard.current == null) return;
 
         if (Keyboard.current.aKey.wasPressedThisFrame) TryMoveSideways(Vector2.left);
         else if (Keyboard.current.dKey.wasPressedThisFrame) TryMoveSideways(Vector2.right);
+
+        if (Keyboard.current.qKey.wasPressedThisFrame) TryRotate(90f);   
+        else if (Keyboard.current.eKey.wasPressedThisFrame) TryRotate(-90f); 
     }
 
     private void TryMoveSideways(Vector2 dir)
@@ -64,5 +88,32 @@ public class TacoBlock : MonoBehaviour
         {
             transform.position += (Vector3)(dir * stepX);
         }
+    }
+
+    private bool IsOverlappingStack()
+    {
+        Physics2D.SyncTransforms();
+        return body.Overlap(filter, overlaps) > 0;
+    }
+
+    private void TryRotate(float Angle)
+    {
+        Vector3 oldPos = transform.position;
+        Quaternion oldRot = transform.rotation;
+        transform.Rotate(0f, 0f, Angle);
+
+        float[] kicks = { 0f, stepX, -stepX };
+        foreach (float kick in kicks)
+        {
+            float x = oldPos.x + kick;
+            if (x < minX || x > maxX) continue;
+
+            transform.position = new Vector3(x, oldPos.y, oldPos.z);
+            if (!IsOverlappingStack()) return;
+        }
+
+        transform.position = oldPos;
+        transform.rotation = oldRot;
+        Physics2D.SyncTransforms();
     }
 }
