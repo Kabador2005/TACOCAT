@@ -7,20 +7,33 @@ public class TacoMinigameManager : MonoBehaviour
     [SerializeField] private GameObject[] ingredientPrefabs;
     [SerializeField] private GameObject tacoMinigameUIPanel;
     [SerializeField] private Transform tacoShellTransform;
-    [SerializeField] private ScoreManager scoreManager;
-    
+
     [Header("Layers")]
     [Tooltip("Layer used by the taco shell collider AND landed ingredients.")]
     [SerializeField] private string stackLayerName = "TacoStack";
 
     [Header("Gameplay")]
-    [SerializeField] private float spawnOffsetY = 4f;
-    [SerializeField] private float dropInterval = 0.8f;
+    [SerializeField] private float SpawnGap = 1f;
+    [SerializeField] private float dropInterval = 0.3f;
+    [SerializeField] private float softDropInterval = 0.05f;
     [SerializeField] private float blockStepSize = 0.5f;   
-    [SerializeField] private float horizontalStep = 1f;    
+    [SerializeField] private float horizontalStep = 0.63f;    
     [SerializeField] private float halfPlayWidth = 3f;     
     [SerializeField] private float ingredientScale = 2f;
-    [SerializeField] private int maxStackHeight = 5;
+    
+
+    [Header("Order Settings")]
+    [SerializeField] private int minBlocks = 4;
+    [SerializeField] private int maxBlocks = 8;
+    [SerializeField] private Transform stackLimitLine;
+    [SerializeField] private float fitHeight = 4f;
+
+    private int targetBlocks;
+    private float limitY;
+    public int TargetBlocks => targetBlocks;
+    public int BlocksRemaining => targetBlocks - stackedCount;
+
+    private float currentBlockSpawnY;
 
     private LayerMask stackMask;
     private int stackLayer;
@@ -52,12 +65,21 @@ public class TacoMinigameManager : MonoBehaviour
     {
         if (!isMinigameActive || currentBlock == null) return;
 
+        float interval = currentBlock.IsSoftDropping ? softDropInterval : dropInterval;
+
         dropTimer += Time.deltaTime;
-        if (dropTimer >= dropInterval)
+        if (dropTimer >= interval)
         {
             dropTimer = 0f;
             StepBlockDown();
         }
+    }
+    private float GetShellTopY()
+    {
+        float top = tacoShellTransform.position.y;
+        foreach (Collider2D c in tacoShellTransform.GetComponentsInChildren<Collider2D>())
+            top = Mathf.Max(top, c.bounds.max.y);
+        return top;
     }
 
     public void StartTacoMinigame(EnemyBehavior customer)
@@ -67,6 +89,9 @@ public class TacoMinigameManager : MonoBehaviour
         dropTimer = 0f;
 
         ClearStack();
+        targetBlocks = Random.Range(minBlocks, maxBlocks + 1);
+        limitY = stackLimitLine != null ? stackLimitLine.position.y : GetShellTopY() + fitHeight;
+        Debug.Log($"Order: stack {targetBlocks} ingredients under y = {limitY:F2}");
 
         if (tacoMinigameUIPanel != null) tacoMinigameUIPanel.SetActive(true);
 
@@ -79,9 +104,9 @@ public class TacoMinigameManager : MonoBehaviour
         if (ingredientPrefabs.Length == 0) return;
 
         GameObject prefab = ingredientPrefabs[Random.Range(0, ingredientPrefabs.Length)];
-        Vector3 spawnPos = tacoShellTransform.position + Vector3.up * spawnOffsetY;
+        Vector3 spawnPos = tacoShellTransform.position;
 
-        GameObject go = Instantiate(prefab, spawnPos, Quaternion.identity, transform);
+        GameObject go = Instantiate(prefab, spawnPos, Quaternion.identity);
         go.transform.localScale = new Vector3(ingredientScale, ingredientScale, 1f);
         spawnedBlocks.Add(go);
 
@@ -91,22 +116,51 @@ public class TacoMinigameManager : MonoBehaviour
             rb.gravityScale = 0f;
             rb.bodyType = RigidbodyType2D.Kinematic;
         }
-        if (go.TryGetComponent(out Collider2D col)) col.isTrigger = true;
+        foreach (Collider2D c in go.GetComponentsInChildren<Collider2D>())
+            c.isTrigger = true;
 
         currentBlock = go.GetComponent<TacoBlock>();
         if (currentBlock == null) currentBlock = go.AddComponent<TacoBlock>();
 
         float shellX = tacoShellTransform.position.x;
         currentBlock.Init(horizontalStep, shellX - halfPlayWidth, shellX + halfPlayWidth, stackMask);
+
+        Physics2D.SyncTransforms();
+        float lift = (limitY + SpawnGap) - currentBlock.Bounds.min.y;
+        go.transform.position += Vector3.up * lift;
+        Physics2D.SyncTransforms();
+
+        Collider2D shellCol = tacoShellTransform.GetComponentInChildren<Collider2D>();
+        float playMinX = shellCol != null ? shellCol.bounds.min.x : tacoShellTransform.position.x - halfPlayWidth;
+        float playMaxX = shellCol != null ? shellCol.bounds.max.x : tacoShellTransform.position.x + halfPlayWidth;
+
+        currentBlock.Init(horizontalStep, playMinX, playMaxX, stackMask);
+
+        float centerOffset = ((playMinX + playMaxX) * 0.5f) - currentBlock.Bounds.center.x;
+        go.transform.position += Vector3.right * centerOffset;
+        currentBlock.SnapToGrid(playMinX, horizontalStep);
+
+        Physics2D.SyncTransforms();
+        currentBlockSpawnY = currentBlock.transform.position.y;
+        Debug.Log($"{go.name} bounds size: {currentBlock.Bounds.size}");
+
     }
 
     private void StepBlockDown()
     {
-        // Ask the collider how far it can really fall: lands flush on the shell / other blocks
         float free = currentBlock.GetFreeDistance(Vector2.down, blockStepSize);
+        bool blocked = free < blockStepSize - 0.002f;
+
+        // Blocked before it ever moved down = stack has reached the spawn point
+        bool neverMoved = Mathf.Abs(currentBlock.transform.position.y - currentBlockSpawnY) < 0.001f;
+        if (blocked && neverMoved && free < 0.01f)
+        {
+            EndTacoMinigame(false);
+            return;
+        }
+
         currentBlock.transform.position += Vector3.down * free;
 
-        bool blocked = free < blockStepSize - 0.002f;
         if (blocked) LandCurrentBlock();
     }
 
@@ -114,22 +168,28 @@ public class TacoMinigameManager : MonoBehaviour
     {
         GameObject landed = currentBlock.gameObject;
 
-        // Lock it in place and make it part of the stack for future collision checks
+        Physics2D.SyncTransforms(); // bounds are stale right after we moved the block
+        Bounds landedBounds = currentBlock.Bounds;
+
         currentBlock.enabled = false;
         Destroy(currentBlock);
-        landed.layer = stackLayer;
+
+        foreach (Transform t in landed.GetComponentsInChildren<Transform>())
+            t.gameObject.layer = stackLayer;
+
         currentBlock = null;
         stackedCount++;
 
-        // Stack reached the spawn point -> no room left
-        float spawnY = tacoShellTransform.position.y + spawnOffsetY;
-        if (landed.GetComponent<Collider2D>().bounds.max.y >= spawnY)
+        // Doesn't fit: this block sticks out above the limit
+        if (landedBounds.max.y > limitY)
         {
+            Debug.Log("Ingredients didn't fit!");
             EndTacoMinigame(false);
             return;
         }
 
-        if (stackedCount >= maxStackHeight) EndTacoMinigame(true);
+        // Fit them all
+        if (stackedCount >= targetBlocks) EndTacoMinigame(true);
         else SpawnNewBlock();
     }
 
@@ -155,7 +215,6 @@ public class TacoMinigameManager : MonoBehaviour
         {
             Debug.Log("Taco completed successfully! Customer drives away happy.");
             if (currentCustomer != null) currentCustomer.CompleteCustomerOrder();
-            if (scoreManager != null) scoreManager.AddBonusPoints(100);
         }
         else
         {

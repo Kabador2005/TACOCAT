@@ -110,7 +110,7 @@ MonoBehaviour:
   baseSpeed: 3
   laneSwitchInterval: 2
   laneStepSize: 1
-  debrisPrefab: {fileID: 0}
+  debrisPrefab: {fileID: 6089075576007061472, guid: 755192908e5053146bf03ae99f30b75f, type: 3}
   dropInterval: 2
   spreadCount: 3
   spreadAngle: 45
@@ -181,7 +181,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.36, y: 2.02}
+    oldSize: {x: 2.0923078, y: 3.1076922}
     newSize: {x: 2.125, y: 3.125}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
