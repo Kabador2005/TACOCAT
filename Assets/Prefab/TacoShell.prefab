@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6258819283267555807}
   - component: {fileID: 8845320163732084755}
   m_Layer: 7
-  m_Name: Taco_Unfill_0
+  m_Name: TacoShell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,8 +28,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.27, y: 1.27, z: 1.27}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -78,11 +78,11 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1253390351
+  m_SortingLayer: 1
+  m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7922974242013675807, guid: 0a80105fc25b95c4d88a70fff956b6a9, type: 3}
+  m_Sprite: {fileID: -8542326102079724252, guid: c844b4bd1597c144890aae028e3d1404, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -129,8 +129,10 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: -0.20963673, y: -0.10573323}
-  - {x: 0.2081044, y: -0.104200885}
+  - {x: -1.0173407, y: 0.9851552}
+  - {x: -1.0164912, y: -0.61581886}
+  - {x: 1.0207629, y: -0.61769783}
+  - {x: 1.0169148, y: 0.9876566}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0

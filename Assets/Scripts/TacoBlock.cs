@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 public class TacoBlock : MonoBehaviour
 {
     private const float Skin = 0.001f;
@@ -26,7 +27,6 @@ public class TacoBlock : MonoBehaviour
             return b;
         }
     }
-
     
     public void Init(float stepX, float minX, float maxX, LayerMask stackMask)
     {
@@ -61,7 +61,6 @@ public class TacoBlock : MonoBehaviour
                 free = hits[i].distance;
                 LastBlocker = hits[i].collider;
             }
-
         }
 
         return Mathf.Max(0f, free - Skin);
@@ -82,7 +81,6 @@ public class TacoBlock : MonoBehaviour
     {
         float dx = dir.x * stepX;
 
-        // minX / maxX are now the left and right edges of the play area
         if (Bounds.min.x + dx < minX - 0.001f || Bounds.max.x + dx > maxX + 0.001f) return;
 
         if (GetFreeDistance(dir, stepX) >= stepX - 2f * Skin)
@@ -90,6 +88,7 @@ public class TacoBlock : MonoBehaviour
             transform.position += (Vector3)(dir * stepX);
         }
     }
+
     private bool IsOverlappingStack()
     {
         Physics2D.SyncTransforms();
@@ -109,7 +108,6 @@ public class TacoBlock : MonoBehaviour
         Quaternion oldRot = transform.rotation;
 
         transform.Rotate(0f, 0f, angle);
-
         
         float[] kicks = { 0f, stepX, -stepX };
         foreach (float kick in kicks)
@@ -120,12 +118,12 @@ public class TacoBlock : MonoBehaviour
             if (FitsInPlayArea() && !IsOverlappingStack())
                 return; 
         }
-
         
         transform.position = oldPos;
         transform.rotation = oldRot;
         Physics2D.SyncTransforms();
     }
+
     public void SnapToGrid(float originX, float cellSize)
     {
         Physics2D.SyncTransforms();
@@ -134,5 +132,4 @@ public class TacoBlock : MonoBehaviour
         transform.position += Vector3.right * (snappedMinX - Bounds.min.x);
         Physics2D.SyncTransforms();
     }
-
 }

@@ -20,7 +20,6 @@ public class EnemyBehavior : MonoBehaviour
     [Header("General Settings")]
     public float baseSpeed = 3f;
     
-
     [Header("Merger Settings")]
     public float laneSwitchInterval = 2f;
     public float laneStepSize = 1f;
@@ -59,7 +58,6 @@ public class EnemyBehavior : MonoBehaviour
     }
 
     private CustomerState customerState = CustomerState.DrivingToPosition;
-
     private Rigidbody2D rb;
 
     void Start()
@@ -88,7 +86,6 @@ public class EnemyBehavior : MonoBehaviour
                 float targetY = playerTransform.position.y + targetStopYOffset;
 
                 customerTargetPos = new Vector2(targetX, targetY);
-
             }
             else
             {
@@ -98,7 +95,6 @@ public class EnemyBehavior : MonoBehaviour
             tacoManager = FindFirstObjectByType<TacoMinigameManager>();
             customerState = CustomerState.DrivingToPosition;
         }
-
     }
 
     void Update()
@@ -113,8 +109,6 @@ public class EnemyBehavior : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-
     }
 
     void HandleBehaviors()
@@ -167,8 +161,6 @@ public class EnemyBehavior : MonoBehaviour
 
             case EnemyType.Hillbilly:
                 rb.linearVelocity = new Vector2(0f, -baseSpeed * 0.6f);
-
-
                 dropTimer += Time.deltaTime;
                 if (dropTimer >= dropInterval)
                 {
@@ -182,7 +174,6 @@ public class EnemyBehavior : MonoBehaviour
                 {
                     transform.position = Vector2.MoveTowards(transform.position, CopTargetPos, (baseSpeed * 1.5f) * Time.deltaTime);
                     rb.linearVelocity = Vector2.zero;
-
 
                     if (Vector2.Distance(transform.position, CopTargetPos) < 0.1f)
                     {
@@ -203,7 +194,6 @@ public class EnemyBehavior : MonoBehaviour
 
     void HandleCustomerBehavior()
     {
-
         switch (customerState)
         {
             case CustomerState.DrivingToPosition:
@@ -230,13 +220,16 @@ public class EnemyBehavior : MonoBehaviour
                 rb.linearVelocity = new Vector2(0f, baseSpeed * 2f);
                 break;
         }
-
-
     }
 
     public void CompleteCustomerOrder()
     {
         customerState = CustomerState.DrivingAway;
+    }
+
+    public void FailCustomerOrder()
+    {
+        customerState = CustomerState.DrivingAway; // Drives away angrily on failure
     }
 
     void DropDebrisSpread()
@@ -259,11 +252,9 @@ public class EnemyBehavior : MonoBehaviour
             {
                 debrisRb.linearVelocity = spawnDir * 4f;
             }
-
-
-
         }
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!collision.enabled) return;
@@ -274,5 +265,4 @@ public class EnemyBehavior : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
 }

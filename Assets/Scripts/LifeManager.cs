@@ -1,10 +1,15 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LifeManager : MonoBehaviour
 {
     [Header("Lives")]
     [SerializeField] private int startingLives = 3;
+
+    [Header("Heart UI")]
+    [SerializeField] private Image[] hearts;
+    [SerializeField] private Sprite fullHeart;
 
     [Header("Game Over")]
     [SerializeField] private GameObject gameOverPanel;
@@ -24,6 +29,8 @@ public class LifeManager : MonoBehaviour
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
+        UpdateHearts();
+
         Debug.Log("Lives: " + currentLives);
     }
 
@@ -32,8 +39,10 @@ public class LifeManager : MonoBehaviour
         if (isGameOver) return;
 
         currentLives--;
+        currentLives = Mathf.Max(currentLives, 0);
 
         Debug.Log("Life lost! Remaining lives: " + currentLives);
+        UpdateHearts();
 
         if (currentLives <= 0)
         {
@@ -46,7 +55,24 @@ public class LifeManager : MonoBehaviour
         if (isGameOver) return;
 
         currentLives = 0;
+        UpdateHearts();
         GameOver();
+    }
+
+    private void UpdateHearts()
+    {
+        if (hearts == null) return;
+
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            if (hearts[i] == null) continue;
+
+            // Hearts are ordered left to right; deplete the leftmost slot first.
+            bool hasLife = i >= hearts.Length - currentLives;
+            hearts[i].enabled = hasLife;
+            if (hasLife && fullHeart != null)
+                hearts[i].sprite = fullHeart;
+        }
     }
 
     private void GameOver()
@@ -64,9 +90,21 @@ public class LifeManager : MonoBehaviour
         // Give the explosion a moment to play
         yield return new WaitForSecondsRealtime(gameOverDelay);
 
-        // Display the ending screen
+        // Display the score-aware death screen when it is wired in the scene.
         if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
+        {
+            GameOverScreen gameOverScreen = gameOverPanel.GetComponent<GameOverScreen>();
+            if (gameOverScreen != null)
+            {
+                ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
+                int finalScore = scoreManager != null ? scoreManager.CurrentScore : 0;
+                gameOverScreen.ShowGameOver(finalScore);
+            }
+            else
+            {
+                gameOverPanel.SetActive(true);
+            }
+        }
 
         // Stop gameplay
         Time.timeScale = 0f;

@@ -8,6 +8,8 @@ public class ScoreManager : MonoBehaviour
 
     private float score = 0f;
 
+    public int CurrentScore => Mathf.FloorToInt(score);
+
     void Update()
     {
         score += Time.deltaTime/5;

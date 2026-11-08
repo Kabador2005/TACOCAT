@@ -14,7 +14,7 @@ TagManager:
   - Water
   - UI
   - Boundary
-  - 
+  - TacoStack
   - 
   - 
   - 
@@ -42,6 +42,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: TacoGame
+    uniqueID: 3041576945
     locked: 0
   m_RenderingLayers:
   - Default
