@@ -1,4 +1,4 @@
-
+using System.Collections;
 using UnityEngine;
 
 public class LifeManager : MonoBehaviour
@@ -6,12 +6,24 @@ public class LifeManager : MonoBehaviour
     [Header("Lives")]
     [SerializeField] private int startingLives = 3;
 
+    [Header("Game Over")]
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private float gameOverDelay = 0.1f;
+
     private int currentLives;
     private bool isGameOver = false;
 
     private void Start()
     {
         currentLives = startingLives;
+
+        // Make sure the game starts normally
+        Time.timeScale = 1f;
+
+        // Hide the ending screen at the start
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+
         Debug.Log("Lives: " + currentLives);
     }
 
@@ -39,8 +51,25 @@ public class LifeManager : MonoBehaviour
 
     private void GameOver()
     {
+        if (isGameOver) return;
+
         isGameOver = true;
         Debug.Log("GAME OVER");
+
+        StartCoroutine(ShowGameOverScreen());
+    }
+
+    private IEnumerator ShowGameOverScreen()
+    {
+        // Give the explosion a moment to play
+        yield return new WaitForSecondsRealtime(gameOverDelay);
+
+        // Display the ending screen
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(true);
+
+        // Stop gameplay
+        Time.timeScale = 0f;
     }
 
     public bool IsGameOver()
