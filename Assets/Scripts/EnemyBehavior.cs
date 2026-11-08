@@ -83,12 +83,12 @@ public class EnemyBehavior : MonoBehaviour
             {
                 playerTransform = player.transform;
 
-                float dx = transform.position.x - playerTransform.position.x;
-                float sideDirection = Mathf.Abs(dx) > 0.01f ? Mathf.Sign(dx) : (Random.value > 0.5f ? 1f : -1f);
-
+                float sideDirection = Random.value > 0.5f ? 1f : -1f;
                 float targetX = playerTransform.position.x + (sideOffsetX * sideDirection);
                 float targetY = playerTransform.position.y + targetStopYOffset;
+
                 customerTargetPos = new Vector2(targetX, targetY);
+
             }
             else
             {
