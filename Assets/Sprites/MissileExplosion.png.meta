@@ -1,0 +1,350 @@
+fileFormatVersion: 2
+guid: b3be295c2b7a053498d03f05ab66de90
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 411780166164774708
+    second: MissileExplosion_0
+  - first:
+      213: 1304981610192721847
+    second: MissileExplosion_1
+  - first:
+      213: 4945852370811160320
+    second: MissileExplosion_2
+  - first:
+      213: -2883855229154663720
+    second: MissileExplosion_3
+  - first:
+      213: -732750713474789258
+    second: MissileExplosion_4
+  - first:
+      213: -9096009150100561950
+    second: MissileExplosion_5
+  - first:
+      213: -5000768756111537174
+    second: MissileExplosion_6
+  - first:
+      213: 736301939389475318
+    second: MissileExplosion_7
+  - first:
+      213: 4847549734213618090
+    second: MissileExplosion_8
+  - first:
+      213: -7467159390261260452
+    second: MissileExplosion_9
+  - first:
+      213: -7862734119721343599
+    second: MissileExplosion_10
+  - first:
+      213: -1078001729402748143
+    second: MissileExplosion_11
+  - first:
+      213: -2960655136129923975
+    second: MissileExplosion_12
+  - first:
+      213: -3365365324303471273
+    second: MissileExplosion_13
+  - first:
+      213: 4285105995271427835
+    second: MissileExplosion_14
+  - first:
+      213: 3705952156691583502
+    second: MissileExplosion_15
+  - first:
+      213: -4502801321911984692
+    second: MissileExplosion_16
+  - first:
+      213: -4553859165018390138
+    second: MissileExplosion_17
+  - first:
+      213: -6287003909157061280
+    second: MissileExplosion_18
+  - first:
+      213: 1453680870635708245
+    second: MissileExplosion_19
+  - first:
+      213: 2819256038880778477
+    second: MissileExplosion_20
+  - first:
+      213: 8520391293571536720
+    second: MissileExplosion_21
+  - first:
+      213: 8084924975586030495
+    second: MissileExplosion_22
+  - first:
+      213: -2755465978497746898
+    second: MissileExplosion_23
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: MissileExplosion_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 338
+        width: 86
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43f7dc121efe6b500800000000000000
+      internalID: 411780166164774708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MissileExplosion_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 252
+        width: 86
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b754f14cd93c1210800000000000000
+      internalID: 1304981610192721847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MissileExplosion_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 168
+        width: 86
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00709b9e68233a440800000000000000
+      internalID: 4945852370811160320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MissileExplosion_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 86
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d2659ac2fc7af7d0800000000000000
+      internalID: -2883855229154663720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MissileExplosion_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 84
+        width: 86
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 670db6ebb1fb4d5f0800000000000000
+      internalID: -732750713474789258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: fe607b3251c4f4846bd2c7fa1ebc5757
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      MissileExplosion_0: 411780166164774708
+      MissileExplosion_1: 1304981610192721847
+      MissileExplosion_10: -7862734119721343599
+      MissileExplosion_11: -1078001729402748143
+      MissileExplosion_12: -2960655136129923975
+      MissileExplosion_13: -3365365324303471273
+      MissileExplosion_14: 4285105995271427835
+      MissileExplosion_15: 3705952156691583502
+      MissileExplosion_16: -4502801321911984692
+      MissileExplosion_17: -4553859165018390138
+      MissileExplosion_18: -6287003909157061280
+      MissileExplosion_19: 1453680870635708245
+      MissileExplosion_2: 4945852370811160320
+      MissileExplosion_20: 2819256038880778477
+      MissileExplosion_21: 8520391293571536720
+      MissileExplosion_22: 8084924975586030495
+      MissileExplosion_23: -2755465978497746898
+      MissileExplosion_24: -1001197805
+      MissileExplosion_3: -2883855229154663720
+      MissileExplosion_4: -732750713474789258
+      MissileExplosion_5: -9096009150100561950
+      MissileExplosion_6: -5000768756111537174
+      MissileExplosion_7: 736301939389475318
+      MissileExplosion_8: 4847549734213618090
+      MissileExplosion_9: -7467159390261260452
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2342275252829272917}
   m_Layer: 0
   m_Name: Speed
-  m_TagString: Untagged
+  m_TagString: Vehicle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -351519346, guid: 49a989f41e3a1524c846bcf238de2a30, type: 3}
+  m_Sprite: {fileID: -2678394577819576460, guid: 0ff7b2490a62ca74e91526178dc0869f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -177,6 +177,6 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.008175135, y: 0}
-  m_Size: {x: 1.1656394, y: 2.5}
+  m_Offset: {x: -0.0051066875, y: -0.0156641}
+  m_Size: {x: 1.0613132, y: 2.4441242}
   m_Direction: 0

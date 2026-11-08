@@ -7,7 +7,8 @@ public class TacoMinigameManager : MonoBehaviour
     [SerializeField] private GameObject[] ingredientPrefabs;
     [SerializeField] private GameObject tacoMinigameUIPanel;
     [SerializeField] private Transform tacoShellTransform;
-
+    [SerializeField] private ScoreManager scoreManager;
+    
     [Header("Layers")]
     [Tooltip("Layer used by the taco shell collider AND landed ingredients.")]
     [SerializeField] private string stackLayerName = "TacoStack";
@@ -154,6 +155,7 @@ public class TacoMinigameManager : MonoBehaviour
         {
             Debug.Log("Taco completed successfully! Customer drives away happy.");
             if (currentCustomer != null) currentCustomer.CompleteCustomerOrder();
+            if (scoreManager != null) scoreManager.AddBonusPoints(100);
         }
         else
         {

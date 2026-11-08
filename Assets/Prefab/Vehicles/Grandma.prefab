@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5457348492903346452}
   m_Layer: 0
   m_Name: Grandma
-  m_TagString: Untagged
+  m_TagString: Vehicle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 3079434808264247364, guid: 2529f58c0f0f4784d925363eac539680, type: 3}
+  m_Sprite: {fileID: 30926352246788450, guid: 98882ca1c5e953c4ebb9778aed2adf65, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -154,7 +154,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2, y: 2.8125}
+    oldSize: {x: 1.28, y: 1.82}
     newSize: {x: 2, y: 2.8125}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
